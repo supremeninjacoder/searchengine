@@ -142,4 +142,22 @@ For efficiency Purposes, a class TermPair which implements Comparable class is m
 Finally, This Intersection of Document Ids are sorted according to PageRank and the Top 10 results are displayed.
 
 The Efficiency lies in the fact that search terms are sorted according to number of Document Ids and hence the Intersection is performed  optimally.
- 
+
+ # Output
+
+ ![image](https://github.com/supremeninjacoder/searchengine/assets/18418522/06364ca5-a43f-4c78-934c-e4d9779467ea)
+Search Results for The  Anarchism
+
+![image](https://github.com/supremeninjacoder/searchengine/assets/18418522/d89d0003-1077-4e45-aaf9-40308d485d7c)
+Search Results for Anarchism Litvinoff
+
+![image](https://github.com/supremeninjacoder/searchengine/assets/18418522/432531d9-d78b-40fc-8ade-d80e8c44c5d2)
+Search Results for Anarchism jjawadd
+
+# References
+
+
+## 1. http://lintool.github.io/Cloud9/docs/content/wikipedia.html 
+## 2. http://salsahpc.indiana.edu/CloudCom2010/EPoster/cloudcom2010_submission_268.pdf 
+## 3. https://krex.k-state.edu/dspace/bitstream/handle/2097/17609/AnirudhTadakamala2014.pdf
+
