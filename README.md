@@ -23,7 +23,7 @@ Implementation of the Large Scale Search Engine consists of 5 sub-tasks which ar
 
 
 
-Note : Please copy paste cloud9-2.0.2-SNAPSHOT-fatjar.jar file into the DocIdToTitle/lib and DumpPlainText/lib sub folders. This is done to keep the size of the coursework2 zip file minimal.
+Note : Please copy paste cloud9-2.0.2-SNAPSHOT-fatjar.jar file into the DocIdToTitle/lib and DumpPlainText/lib sub folders. This is done to keep the size of the searchengine zip file minimal.
  
 # 2.1	Document Id to Page Title  Mapping
 
@@ -35,7 +35,7 @@ A Single reducer and MapFileOutputFormat is used to generate a single output fil
 Command used :
 
 hadoop-moonshot  jar  dist/DocIdToTitle.jar  edu.umd.cloud9.collection.wikipedia.DocIdToTitle
-/data/wiki/enwiki-latest-pages-articles.xml    coursework2/DocIdToTitle
+/data/wiki/enwiki-latest-pages-articles.xml    searchengine/DocIdToTitle
 
 
 
@@ -50,7 +50,7 @@ The output will be used as input to Building Inverted Index sub task for generat
 
 Command used :
 
-hadoop-moonshot jar dist/DumpPlainText1.jar edu.umd.cloud9.collection.wikipedia.DumpWiki pediaToDocIdPlainText    /data/wiki/enwiki-latest-pages-articles.xml    coursework2/DocIdPlainText
+hadoop-moonshot jar dist/DumpPlainText1.jar edu.umd.cloud9.collection.wikipedia.DumpWiki pediaToDocIdPlainText    /data/wiki/enwiki-latest-pages-articles.xml    searchengine/DocIdPlainText
  
 # 2.3	PageRank
 
@@ -70,13 +70,13 @@ hadoop-moonshot jar dist/PageRank.jar WikiPageRanking
 XML Mapper
 This job takes /data/wiki/enwiki-latest-pages-articles.xml as Input to the Mapper and maps the current Document Id to the corresponding Document Ids to which a link from that page exists i.e. This job uses the XMLInputFormat class to parse and process XML files. The Reducer outputs, for each page, an assumed initial PageRank i.e. (1.0) and a comma seperated list of links (i.e Adjacency List).
 
-The output(coursework2/PageRank/iter00 )will be used as input to Rank Result sub sub task for generating the PageRank.
+The output(searchengine/PageRank/iter00 )will be used as input to Rank Result sub sub task for generating the PageRank.
 
 
 
 Rank Calculate
 
-This job takes coursework2/PageRank/iter00 as Input to the Mapper and maps the current Document Id in three ways.  It emits a tuple ( Text, new Text(”!”) ) to mark the page as
+This job takes searchengine/PageRank/iter00 as Input to the Mapper and maps the current Document Id in three ways.  It emits a tuple ( Text, new Text(”!”) ) to mark the page as
 existing for each page. It emits the page rank and the number of outgoing links(simply by calculating length of array of links) for each link in the link list of that page. Finally, It also emits the list of links for each page.
 
 The Reducer checks if it is an existing page and then calculates the sum of contribution of each page to which the corresponding page has the link to. Then a new Page Rank is calculated using the formula :
@@ -96,35 +96,35 @@ The newly calculated Page Rank and the comma seperated list of links is outputte
 
 
 Rank Result
-This job takes the last result path of the previous sub sub task i.e. since we are using 5 iterations. The input path is coursework2/PageRank/iter05 as Input to the Mapper and maps the current Document Id to the corresponding PageRank.
+This job takes the last result path of the previous sub sub task i.e. since we are using 5 iterations. The input path is searchengine/PageRank/iter05 as Input to the Mapper and maps the current Document Id to the corresponding PageRank.
 
-A Single reducer and MapFileOutputFormat is used to generate a single output file at coursework2/PageRank/result to help in random access while listing the search results as we will have the Page Rank corresponding to each Document Id to rank the results.
+A Single reducer and MapFileOutputFormat is used to generate a single output file at searchengine/PageRank/result to help in random access while listing the search results as we will have the Page Rank corresponding to each Document Id to rank the results.
 
 
 
 # 2.4	Building Inverted Index
 
 
-This job takes coursework2/DocIdPlainText as Input to the Mapper and maps each unique word in the page content to the corresponding Document Id. The Reducer creates a Ar- rayListWritable of all the Document Id’s corresponding to a term and emits the term and the ArrayListWritable. ArrayListWritable is a custom Writable.
+This job takes searchengine/DocIdPlainText as Input to the Mapper and maps each unique word in the page content to the corresponding Document Id. The Reducer creates a Ar- rayListWritable of all the Document Id’s corresponding to a term and emits the term and the ArrayListWritable. ArrayListWritable is a custom Writable.
 
 A Single reducer and MapFileOutputFormat is used to generate a single output file to help in random access while listing the search results as we will have the Document Id’s corresponding to a search term.
 
 Command used :
 
-hadoop-moonshot jar dist/InvertedIndex.jar InvertedIndex coursework2/DocIdPlainText course- work2/InvertedIndex
+hadoop-moonshot jar dist/InvertedIndex.jar InvertedIndex searchengine/DocIdPlainText course- work2/InvertedIndex
  
 # 2.5	Search Terms
 
 
-coursework2/InvertedIndex, coursework2/PageRank/result and coursework2/DocIdToTitle are taken as Input to this task. These inputs are used to open Map.Reader for Map Files for each of the inputs.
+searchengine/InvertedIndex, searchengine/PageRank/result and searchengine/DocIdToTitle are taken as Input to this task. These inputs are used to open Map.Reader for Map Files for each of the inputs.
 
-The Document Ids corresponding to search term are collected from the Map.Reader corresponding to coursework2/InvertedIndex and all the PageRanks corresponding to these Document Ids are collected from the Map.Reader corresponding to coursework2/PageRank.  A PagePair class is created to represent a Page along with its rank and it implements     the Comparable class. An ArrayList of PagePair is created containing all the Document Ids(corresponding to the search tem) along with their corresponding PageRanks. This Ar- rayList is sorted in decreasing order according to PageRank by implementing the compare method of the Comparator class.
+The Document Ids corresponding to search term are collected from the Map.Reader corresponding to searchengine/InvertedIndex and all the PageRanks corresponding to these Document Ids are collected from the Map.Reader corresponding to searchengine/PageRank.  A PagePair class is created to represent a Page along with its rank and it implements     the Comparable class. An ArrayList of PagePair is created containing all the Document Ids(corresponding to the search tem) along with their corresponding PageRanks. This Ar- rayList is sorted in decreasing order according to PageRank by implementing the compare method of the Comparator class.
 
-The Page Titles corresponding to the top 10 Document Ids are collected from the Map.Reader corresponding to coursework2/DocIdToTitle and the Search Results are displayed on the con- sole.
+The Page Titles corresponding to the top 10 Document Ids are collected from the Map.Reader corresponding to searchengine/DocIdToTitle and the Search Results are displayed on the con- sole.
 
 Command used :
 
-hadoop-moonshot jar dist/SearchTerms.jar SearchTerms coursework2/InvertedIndex course- work2/PageRank/result coursework2/DocIdToTitle Anarchism
+hadoop-moonshot jar dist/SearchTerms.jar SearchTerms searchengine/InvertedIndex course- work2/PageRank/result searchengine/DocIdToTitle Anarchism
 
 where Anarchism is the term to be searched.
  
@@ -133,7 +133,7 @@ where Anarchism is the term to be searched.
 
 Multiple terms can be Searched using the previous command only in the following form
 
-hadoop-moonshot jar dist/SearchTerms.jar SearchTerms coursework2/InvertedIndex course- work2/PageRank/result coursework2/DocIdToTitle The Anarchism
+hadoop-moonshot jar dist/SearchTerms.jar SearchTerms searchengine/InvertedIndex course- work2/PageRank/result searchengine/DocIdToTitle The Anarchism
 
 where The and Anarchism are the terms to be searched.
 
